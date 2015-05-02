@@ -706,33 +706,25 @@ _get_integer_value (ArvGcRegisterNode *gc_register_node, guint register_lsb, gui
 	    gc_register_node->type == ARV_GC_REGISTER_NODE_TYPE_STRUCT_REGISTER) {
 		guint64 mask;
 
-		if (endianess == G_BYTE_ORDER) {
+		if (endianess == G_LITTLE_ENDIAN) {
 			msb = register_msb;
 			lsb = register_lsb;
 		} else {
 			lsb = 8 * gc_register_node->cache_size - register_lsb - 1;
 			msb = 8 * gc_register_node->cache_size - register_msb - 1;
 		}
+
 		arv_log_genicam ("[GcRegisterNode::_get_integer_value] reglsb = %d, regmsb, %d, lsb = %d, msb = %d",
 				 register_lsb, register_msb, lsb, msb);
 		arv_log_genicam ("[GcRegisterNode::_get_integer_value] value = 0x%08Lx", value);
 
-
-#if G_BYTE_ORDER == G_LITTLE_ENDIAN
 		if (msb - lsb < 63)
 			mask = ((((guint64) 1) << (msb - lsb + 1)) - 1) << lsb;
 		else
 			mask = G_MAXUINT64;
 
 		value = (value & mask) >> lsb;
-#else
-		if (lsb - msb < 63)
-			mask = ((((guint64) 1) << (lsb - msb + 1)) - 1) << msb;
-		else
-			mask = G_MAXUINT64;
 
-		value = (value & mask) >> lsb;
-#endif
 		arv_log_genicam ("[GcRegisterNode::_get_integer_value] mask  = 0x%08Lx", mask);
 	}
 
@@ -805,32 +797,25 @@ _set_integer_value (ArvGcRegisterNode *gc_register_node, guint register_lsb, gui
 		arv_copy_memory_with_endianess (&current_value, sizeof (current_value), G_BYTE_ORDER,
 						gc_register_node->cache, gc_register_node->cache_size, endianess);
 
-		if (endianess == G_BYTE_ORDER) {
+		if (endianess == G_LITTLE_ENDIAN) {
 			msb = register_msb;
 			lsb = register_lsb;
 		} else {
 			lsb = 8 * gc_register_node->cache_size - register_lsb - 1;
 			msb = 8 * gc_register_node->cache_size - register_msb - 1;
 		}
+
 		arv_log_genicam ("[GcRegisterNode::_get_integer_value] reglsb = %d, regmsb, %d, lsb = %d, msb = %d",
 				 register_lsb, register_msb, lsb, msb);
 		arv_log_genicam ("[GcRegisterNode::_get_integer_value] value = 0x%08Lx", value);
 
-#if G_BYTE_ORDER == G_LITTLE_ENDIAN
 		if (msb - lsb < 63)
 			mask = ((((guint64) 1) << (msb - lsb + 1)) - 1) << lsb;
 		else
 			mask = G_MAXUINT64;
 
 		value = ((value << lsb) & mask) | (current_value & ~mask);
-#else
-		   if (lsb - msb < 63)
-                        mask = ((((guint64) 1) << (lsb - msb + 1)) - 1) << msb;
-                else
-                        mask = G_MAXUINT64;
 
-                value = ((value << msb) & mask) | (current_value & ~mask);
-#endif
 		arv_log_genicam ("[GcRegisterNode::_get_integer_value] mask  = 0x%08Lx", mask);
 	}
 
