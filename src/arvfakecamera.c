@@ -83,6 +83,8 @@ arv_fake_camera_read_memory (ArvFakeCamera *camera, guint32 address, guint32 siz
 		return TRUE;
 	}
 
+	return FALSE;
+
 	address -= ARV_FAKE_CAMERA_MEMORY_SIZE;
 	read_size = MIN (address + size, camera->priv->genicam_xml_size) - address;
 
